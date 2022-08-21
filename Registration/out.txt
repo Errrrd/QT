@@ -1,0 +1,54 @@
+Username:Santos
+Login:Din-don_
+Password:`ze][O?r[r?  
+Domain:santos@bingo.net
+Phone:+0556667788
+Domain:www.bla-bla_bla.com.ua
+Credit card:5959 5959 5959 5959
+IP:2.2.2.2
+
+Username:a
+Login:b
+Password:?O:?©B?(?Es1A2
+Domain:erd@net
+Phone:+1234567890
+Domain:www.erd.com
+Credit card:4417 1234 5678 9113
+IP:11.22.33.44
+
+Username:Aladin
+Login:Adin
+Password:k·AGoX?o\?Pu
+Domain:al@ddin.net
+Phone:+1111111111
+Domain:www.aladin.net
+Credit card:1818 1818 1818 1818
+IP:1.1.1.1
+
+Username:Sorok Dva
+Login:ThisIs42
+Password:?lI|N?n?y?S?eEZ
+Domain:4242@42.net
+Phone:+4242424242
+Domain:www.42.net
+Credit card:4242 4242 4242 4242
+IP:42.42.42.42
+
+Username:Vasya Pupkin
+Login:Pup
+Password:a'?u?	?KC`Aµ
+Domain:pup@pup.net
+Phone:+1234567890
+Domain:www.pupkin.net
+Credit card:2000 0000 0000 0006
+IP:111.22.33.44
+
+Username:p
+Login:p
+Password:a'?u?	?KC`Aµ
+Domain:qw@qw.qw
+Phone:+0123456789
+Domain:www.www.www
+Credit card:4000 0000 0000 0002
+IP:33.33.33.33
+

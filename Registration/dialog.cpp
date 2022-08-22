@@ -34,6 +34,12 @@
  * Дозволені символи: літери (az), цифри, підкреслення, крапки та тире + дивись domain (після @).
  * Після підкреслення, крапки або тире має йти одна або кілька літер або цифр.
  *
+ * credit card number
+ * У техніці перевірки номерів кредитних карток використовується формула Луна (також відома як алгоритм Луна або алгоритм «mod 10» або «modulus 10»). Це проста процедура, яка перевіряє номер картки в три етапи:
+ * Подвоїть значення кожної непарної цифри номера картки, яку ви перевіряєте. Якщо отримана сума будь-якої операції подвоєння більша за 9 (наприклад, 6 x 2 = 12 або 8 x 2 = 16), тоді додайте цифри цієї суми (наприклад, 12: 1 + 2 = 3 або 16: 1 + 6 = 7).
+ * Складіть усі отримані цифри, включаючи парні цифри, які ви не помножили на два.
+ * Якщо сума, яку ви отримали, закінчується на 0, номер картки дійсний згідно з формулою Луна; інакше він недійсний.
+ *
  * Будьте уважні! Айпі адреса - це не просто чотири числа, а номер кредитки - не просто 16 цифр!
  *
  * ------------------------------------------------- ---------
@@ -189,11 +195,13 @@ void Dialog::setAccept() {
     valid *= setIP(out, out1);
 
     if(valid) {
-        log->append("\nvalidate");
+        log->append("\n-----------------\nValidation complette. Registration.");
         out << "\n";
         out1 << "\n";
         fout << str;
         fout1 << csv;
+    } else {
+        log->append("-----------------");
     }
     accept->blockSignals(valid);
     username->setReadOnly(valid);
@@ -255,14 +263,7 @@ bool Dialog::setLogin(QTextStream &out, QTextStream &out1, QTextStream &fin) {
 bool Dialog::setPassword(QTextStream &out, QTextStream &out1) {
     QRegExp rx("(([^A-Za-z0-9!-/:-@[-`{-~])+)");
     QString pass = password->text();
-    QByteArray pass1;
-    QString salt = "paralipomenon";
     bool correct = true;
-    QByteArray hashpass;
-
-    pass1.append(pass.toUtf8());
-    pass1.append(salt.toUtf8());
-    hashpass = QCryptographicHash::hash(pass1, QCryptographicHash::Md5);
 
     correct = (pass.length()>3)&&(!pass.contains(rx));
     QString strInValid = "invalid password: ";
@@ -289,6 +290,12 @@ bool Dialog::setPassword(QTextStream &out, QTextStream &out1) {
         strInValid.append("must contain 4+ symbols and cannot contain letters other than Latin, spaces, newlines, tabs, etc.; ");
     }
     if (correct) {
+        QByteArray bytePass(pass.toUtf8());
+        QByteArray salt = "paralipomenon 1:1";
+        QByteArray hashpass = QCryptographicHash::hash(bytePass, QCryptographicHash::Md5);
+
+        hashpass.append(salt);
+        hashpass = QCryptographicHash::hash(hashpass, QCryptographicHash::Md5);
         log->append("valid password");
         out << "Password:" << hashpass << "\n";
         out1 << "\"" << hashpass << "\"" << "; ";
@@ -299,9 +306,9 @@ bool Dialog::setPassword(QTextStream &out, QTextStream &out1) {
 }
 
 bool Dialog::setRpassword() {
-    QString pass = password->text();
-    QString rpass = rpassword->text();
-    bool correct = (pass == rpass);
+    //QString pass = password->text();
+    //QString rpass = rpassword->text();
+    bool correct = (password->text() == rpassword->text());
 
     if (correct) {
         log->append("repeated password correct");
@@ -312,7 +319,7 @@ bool Dialog::setRpassword() {
 }
 
 bool Dialog::setE_mail(QTextStream &out, QTextStream &out1) {
-    QRegExp rx("^([a-z0-9])(([a-z0-9._-])*)([@])([A-Za-z0-9ßàÁâãóôþüúðæåïçèõöÿýòäœêëìíøùîûñé-]{1,})([.])?([A-Za-z0-9ßàÁâãóôþüúðæåïçèõöÿýòäœêëìíøùîûñé-]{1,})$");
+    QRegExp rx("^([a-z0-9])(([a-z0-9._-])*)([@])([A-Za-z0-9ßàÁâãóôþüúðæåïçèõöÿýòäœêëìíøùîûñé-]{1,})(([.])?([A-Za-z0-9ßàÁâãóôþüúðæåïçèõöÿýòäœêëìíøùîûñé-]{1,}))*$");
     QRegExp rx1("[@.-]{2,}");
     QRegExp rx2("^[_.-]{1,}");
     QRegExp rx3("[.-]{1,}$");
@@ -350,7 +357,7 @@ bool Dialog::setPhone(QTextStream &out, QTextStream &out1) {
 }
 
 bool Dialog::setDomain(QTextStream &out, QTextStream &out1) {
-    QRegExp rx("^([A-Za-z0-9ßàÁâãóôþüúðæåïçèõöÿýòäœêëìíøùîûñé-]{1,})([.])?([A-Za-z0-9ßàÁâãóôþüúðæåïçèõöÿýòäœêëìíøùîûñé-]{1,})$");
+    QRegExp rx("^([A-Za-z0-9ßàÁâãóôþüúðæåïçèõöÿýòäœêëìíøùîûñé-]{1,})(([.])?([A-Za-z0-9ßàÁâãóôþüúðæåïçèõöÿýòäœêëìíøùîûñé-]{1,}))*$");
     QRegExp rx1("[.-]{2,}");
     QRegExp rx2("^[.-]{1,}");
     QRegExp rx3("[.-]{1,}$");
@@ -381,34 +388,25 @@ bool Dialog::setCreditCard(QTextStream &out, QTextStream &out1) {
     correct = card.contains(rx);
     correct = (card[0].isDigit() && card[0].digitValue() > 0);
     if (correct) {
-        int sum1, sum2, sum3, sum4, sum5, sum6, sum7, sum8;
+        int sum1, sum2;
 
         sum1 = (2 * card[0].digitValue());
         sum1 = sum1 % 10 + sum1 / 10 + card[1].digitValue();
         sum2 = (2 * card[2].digitValue());
         sum1 += sum2 % 10 + sum2 / 10 + card[3].digitValue();
-        sum3 = (2 * card[5].digitValue());
-        sum1 += sum3 % 10 + sum3 / 10 + card[6].digitValue();
-        sum4 = (2 * card[7].digitValue());
-        sum1 += sum4 % 10 + sum4 / 10 + card[8].digitValue();
-        sum5 = (2 * card[10].digitValue());
-        sum1 += sum5 % 10 + sum5 / 10 + card[11].digitValue();
-        sum6 = (2 * card[12].digitValue());
-        sum1 += sum6 % 10 + sum6 / 10 + card[13].digitValue();
-        sum7 = (2 * card[15].digitValue());
-        sum1 += sum7 % 10 + sum7 / 10 + card[16].digitValue();
-        sum8 = (2 * card[17].digitValue());
-        sum1 += sum8 % 10 + sum8 / 10 + card[18].digitValue();
+        sum2 = (2 * card[5].digitValue());
+        sum1 += sum2 % 10 + sum2 / 10 + card[6].digitValue();
+        sum2 = (2 * card[7].digitValue());
+        sum1 += sum2 % 10 + sum2 / 10 + card[8].digitValue();
+        sum2 = (2 * card[10].digitValue());
+        sum1 += sum2 % 10 + sum2 / 10 + card[11].digitValue();
+        sum2 = (2 * card[12].digitValue());
+        sum1 += sum2 % 10 + sum2 / 10 + card[13].digitValue();
+        sum2 = (2 * card[15].digitValue());
+        sum1 += sum2 % 10 + sum2 / 10 + card[16].digitValue();
+        sum2 = (2 * card[17].digitValue());
+        sum1 += sum2 % 10 + sum2 / 10 + card[18].digitValue();
 
-//        sum2 = sum1/10 + 48;
-//        sum3 = sum1%10 + 48;
-//        QChar c1(sum2);
-//        QChar c2(sum3);
-//        QString s;
-
-//        s.append(c1);
-//        s.append(c2);
-//        log->append(s);
         correct = (sum1 % 10 == 0);
     }
     if (correct) {

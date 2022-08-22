@@ -4,13 +4,13 @@
 #include <QDialog>
 #include <QFile>
 #include <QTextEdit>
-#include <QRegularExpression>
+//#include <QRegularExpression>
 #include <QtWidgets/QLabel>
 #include <QtWidgets/QPushButton>
 #include <QtWidgets/QLineEdit>
 #include <QtWidgets/QGridLayout>
 #include <QCryptographicHash>
-//#include <bits/functional_hash.h>
+#include <QTextStream>
 
 class Dialog : public QDialog
 {

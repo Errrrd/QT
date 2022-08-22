@@ -1,32 +1,32 @@
 #include "dialog.h"
 
+#include <QRegExp>
 /*
- * Задача:
- * Реализовать валидацию следующих типов введённых данных
+ * Завдання:
+ * Реалізувати валідацію наступних типів введених даних
  *
  * username
- * Может содержать только буквы латинского алфавита и дефисы.
- * Может состоять из нескольких слов.
- * Слово не может начинаться с дефиса.
+ * Може містити лише літери латинського алфавіту та дефіси.
+ * Може складатися з кількох слів.
+ * Слово не може починатися з дефісу.
  *
  * login
- * Может содержать только латинские буквы, цифры, дефисы и подчёркивания. Не может начинаться с дефиса и подчёркивания.
+ * Може містити лише латинські літери, цифри, дефіси та підкреслення. Не може починатися з дефісу та підкреслення.
  *
  * password
- * Не может содержать буквы, отличные от латинских.
- * Не может содержать пробелы, переводы строки, табуляцию и т.п.
- * Проверка безоспасности должен содержать большие и маленькие буквы латинского алфавита, цифры и спецсимволы. Отследить, чего не хватает для безопасности.
+ * Не може містити літери, відмінні від латинських.
+ * Не може містити прогалини, переклади рядка, табуляцію тощо.
+ * Перевірка безпеки повинен містити великі та маленькі літери латинського алфавіту, цифри та спецсимволи. Відстежити, чого не вистачає для безпеки.
  *
  * phone, domain, e-mail, credit card number, ip address
- * Выяснить, как правильно валидировать каждое из этих полей у проф. Гугля.
- * Реализовать валидацию.
+ * З'ясувати, як правильно валідувати кожне з цих полів у проф. Гугля.
+ * Реалізувати валідацію.
  *
- * Будьте внимательны! Айпи адрес - это не просто четыре числа, а номер кредитки - не просто 16 цифр!
+ * Будьте уважні! Айпі адреса - це не просто чотири числа, а номер кредитки - не просто 16 цифр!
  *
- * ----------------------------------------------------------
- * файлы out.txt  и users.csv закинуть в папку с программой... либо указать путь.
-*/
-
+ * ------------------------------------------------- ---------
+ * файли out.txt і users.csv закинути в папку з програмою... або вказати шлях.
+ */
 Dialog::Dialog(QWidget *parent)
     : QDialog(parent),
     layout(new QGridLayout(this)),
@@ -49,7 +49,7 @@ Dialog::Dialog(QWidget *parent)
     labelE_mail(new QLabel("e-mail:\nfor sample user@domain.com")),
     e_mail(new QLineEdit(this)),
 
-    labelPhone(new QLabel("Phone number (10 numerals):\nfor sample 0445556677")),
+    labelPhone(new QLabel("Phone number (11 numerals):\nfor sample 30445556677")),
     phone(new QLineEdit(this)),
 
     labelDomain(new QLabel("Domain:\nfor sample www.domain.com")),
@@ -129,12 +129,13 @@ Dialog::~Dialog()
 
 void Dialog::setAccept() {
     bool valid = true;
-    QFile file("out.txt"); // set path for files
-    QFile infile("users.csv"); // set path for files
-    QFile users("users.csv"); // set path for files
+    QFile file("../Registration/out.txt"); // set path for files
+    QFile infile("../Registration/users.csv"); // set path for files
+    QFile users("../Registration/users.csv"); // set path for files
 
     if (!file.open(QIODevice::Append | QIODevice::Text)){
         log->append("out.txt file not found");
+
         return;
     }
     if (!infile.open(QIODevice::ReadOnly | QIODevice::Text)){
@@ -195,7 +196,7 @@ void Dialog::setAccept() {
 }
 
 bool Dialog::setUsername(QTextStream &out, QTextStream &out1) {
-    QRegularExpression rx("^(([A-Za-z])+)((([-]|[ ])([A-Za-z]+))*)$");
+    QRegExp rx("^(([A-Za-z])+)((([-]|[ ])([A-Za-z]+))*)$");
     QString user = username->text();
     bool correct = true;
 
@@ -211,11 +212,11 @@ bool Dialog::setUsername(QTextStream &out, QTextStream &out1) {
 }
 
 bool Dialog::setLogin(QTextStream &out, QTextStream &out1, QTextStream &fin) {
-    QRegularExpression rx("^([A-Za-z0-9])(([A-Za-z0-9_-])*)$");
+    QRegExp rx("^([A-Za-z0-9])(([A-Za-z0-9_-])*)$");
     QString tmp_login = login->text();
     QString csvfile(fin.readAll());
     QString rxStr = "([;]|[,])([ ]*)(";
-    QRegularExpression rxLog;
+    QRegExp rxLog;
     bool correct = true;
 
 
@@ -240,7 +241,7 @@ bool Dialog::setLogin(QTextStream &out, QTextStream &out1, QTextStream &fin) {
 }
 
 bool Dialog::setPassword(QTextStream &out, QTextStream &out1) {
-    QRegularExpression rx("^([!-~]{4,})$");
+    QRegExp rx("^([!-~]{4,})$");
     QString pass = password->text();
     QByteArray pass1;
     QString salt = "paralipomenon";
@@ -286,7 +287,7 @@ bool Dialog::setRpassword() {
 }
 
 bool Dialog::setE_mail(QTextStream &out, QTextStream &out1) {
-    QRegularExpression rx("^([a-z0-9])(([a-z0-9_-])*)([@])((([a-z0-9]+)([_a-z0-9]*)(((-?)[a-z0-9]+)*)([.])?)+)([a-z0-9]+)$");
+    QRegExp rx("^([a-z0-9])(([a-z0-9_-])*)([@])((([a-z0-9]+)([_a-z0-9]*)(((-?)[a-z0-9]+)*)([.])?)+)([a-z0-9]+)$");
     QString mail = e_mail->text();
     bool correct = true;
 
@@ -302,7 +303,7 @@ bool Dialog::setE_mail(QTextStream &out, QTextStream &out1) {
 }
 
 bool Dialog::setPhone(QTextStream &out, QTextStream &out1) {
-    QRegularExpression rx("^[0-9]{10,10}$");
+    QRegExp rx("^[0-9]{11,11}$");
     QString ph = phone->text();
     bool correct = true;
 
@@ -318,7 +319,7 @@ bool Dialog::setPhone(QTextStream &out, QTextStream &out1) {
 }
 
 bool Dialog::setDomain(QTextStream &out, QTextStream &out1) {
-    QRegularExpression rx("^((([a-z0-9]+)([_a-z0-9]*)(((-?)[a-z0-9]+)*)([.])?)+)([a-z0-9]+)$");
+    QRegExp rx("^((([a-z0-9]+)([_a-z0-9]*)(((-?)[a-z0-9]+)*)([.])?)+)([a-z0-9]+)$");
     QString dom = domain->text();
     bool correct = true;
 
@@ -336,7 +337,7 @@ bool Dialog::setDomain(QTextStream &out, QTextStream &out1) {
 }
 
 bool Dialog::setCreditCard(QTextStream &out, QTextStream &out1) {
-    QRegularExpression rx("^([0-9]{4,4}([ ])[0-9]{4,4}([ ])[0-9]{4,4}([ ])[0-9]{4,4})$");
+    QRegExp rx("^([0-9]{4,4}([ ])[0-9]{4,4}([ ])[0-9]{4,4}([ ])[0-9]{4,4})$");
     QString card = credit_card->text();
 
     bool correct = true;
@@ -385,7 +386,7 @@ bool Dialog::setCreditCard(QTextStream &out, QTextStream &out1) {
 }
 
 bool Dialog::setIP(QTextStream &out, QTextStream &out1) {
-    QRegularExpression rx("^([0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3})$");
+    QRegExp rx("^([0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3})$");
     QString ipt = ip_address->text();
 
     bool correct = true;

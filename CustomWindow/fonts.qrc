@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/">
+        <file>fonts/AlternateGotNo3D.ttf</file>
+    </qresource>
+</RCC>

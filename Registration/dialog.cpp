@@ -22,6 +22,18 @@
  * З'ясувати, як правильно валідувати кожне з цих полів у проф. Гугля.
  * Реалізувати валідацію.
  *
+ * domain
+ * Доменне ім'я складається мінімум з двох і максимум з 63 символів.
+ * Допускаються всі літери від a до z, усі цифри від 0 до 9 і дефіс (-).
+ * Доменне ім’я не повинно складатися з дефіса (-) на третій і четвертій позиції одночасно.
+ * Також можливі такі спеціальні символи. Доменні імена, що містять такі літери, називаються IDN або інтернаціоналізованими доменними іменами:
+ * ß, à, Á, â, ã, ó, ô, þ, ü, ú, ð, æ, å, ï, ç, è, õ, ö, ÿ, ý, ò, ä, œ, ê, ë, ì, í, ø, ù, î, û, ñ, é
+ *
+ * e-mail
+ * Прийнятні формати префіксів електронної пошти
+ * Дозволені символи: літери (az), цифри, підкреслення, крапки та тире + дивись domain (після @).
+ * Після підкреслення, крапки або тире має йти одна або кілька літер або цифр.
+ *
  * Будьте уважні! Айпі адреса - це не просто чотири числа, а номер кредитки - не просто 16 цифр!
  *
  * ------------------------------------------------- ---------
@@ -241,34 +253,47 @@ bool Dialog::setLogin(QTextStream &out, QTextStream &out1, QTextStream &fin) {
 }
 
 bool Dialog::setPassword(QTextStream &out, QTextStream &out1) {
-    QRegExp rx("^([!-~]{4,})$");
+    QRegExp rx("(([^A-Za-z0-9!-/:-@[-`{-~])+)");
     QString pass = password->text();
     QByteArray pass1;
     QString salt = "paralipomenon";
     bool correct = true;
     QByteArray hashpass;
 
-    pass1.append(pass.toStdString().c_str());
-    pass1.append(salt.toStdString().c_str());
+    pass1.append(pass.toUtf8());
+    pass1.append(salt.toUtf8());
     hashpass = QCryptographicHash::hash(pass1, QCryptographicHash::Md5);
 
-    correct = pass.contains(rx);
+    correct = (pass.length()>3)&&(!pass.contains(rx));
+    QString strInValid = "invalid password: ";
+
     if( correct ) {
+        bool isValid = true;
         rx.setPattern("[a-z]");
-        correct *= correct&&pass.contains(rx);
+        isValid = pass.contains(rx);
+        correct *= isValid;
+        if (!isValid) { strInValid.append("must contain small Latin letters; "); }
         rx.setPattern("[A-Z]");
-        correct = correct&&pass.contains(rx);
+        isValid = pass.contains(rx);
+        if (!isValid) { strInValid.append("must contain large Latin letters; "); }
+        correct *= isValid;
         rx.setPattern("[0-9]");
-        correct = correct&&pass.contains(rx);
+        isValid = pass.contains(rx);
+        if (!isValid) { strInValid.append("must contain numbers; "); }
+        correct *= isValid;
         rx.setPattern("[!-/:-@[-`{-~]");
-        correct = correct&&pass.contains(rx);
+        isValid = pass.contains(rx);
+        if (!isValid) { strInValid.append("must contain special characters; "); }
+        correct *= isValid;
+    } else {
+        strInValid.append("must contain 4+ symbols and cannot contain letters other than Latin, spaces, newlines, tabs, etc.; ");
     }
     if (correct) {
         log->append("valid password");
         out << "Password:" << hashpass << "\n";
         out1 << "\"" << hashpass << "\"" << "; ";
     } else {
-        log->append("invalid password");
+        log->append(strInValid);
     }
     return correct;
 }
@@ -287,14 +312,20 @@ bool Dialog::setRpassword() {
 }
 
 bool Dialog::setE_mail(QTextStream &out, QTextStream &out1) {
-    QRegExp rx("^([a-z0-9])(([a-z0-9_-])*)([@])((([a-z0-9]+)([_a-z0-9]*)(((-?)[a-z0-9]+)*)([.])?)+)([a-z0-9]+)$");
+    QRegExp rx("^([a-z0-9])(([a-z0-9._-])*)([@])([A-Za-z0-9ßàÁâãóôþüúðæåïçèõöÿýòäœêëìíøùîûñé-]{1,})([.])?([A-Za-z0-9ßàÁâãóôþüúðæåïçèõöÿýòäœêëìíøùîûñé-]{1,})$");
+    QRegExp rx1("[@.-]{2,}");
+    QRegExp rx2("^[_.-]{1,}");
+    QRegExp rx3("[.-]{1,}$");
     QString mail = e_mail->text();
-    bool correct = true;
+    bool correct = false;
+    int mlen = mail.length();
 
-    correct = mail.contains(rx);
+    if ( mlen > 3 ) {
+        correct = mail.contains(rx)&&(!mail.contains(rx1))&&(!mail.contains(rx2))&&(!mail.contains(rx3));
+    }
     if (correct) {
         log->append("valid e-mail");
-        out << "Domain:" << mail << "\n";
+        out << "e-mail:" << mail << "\n";
         out1<< mail << "; ";
     } else {
         log->append("invalid e-mail");
@@ -305,7 +336,7 @@ bool Dialog::setE_mail(QTextStream &out, QTextStream &out1) {
 bool Dialog::setPhone(QTextStream &out, QTextStream &out1) {
     QRegExp rx("^[0-9]{11,11}$");
     QString ph = phone->text();
-    bool correct = true;
+    bool correct = false;
 
     correct = ph.contains(rx);
     if (correct) {
@@ -319,12 +350,17 @@ bool Dialog::setPhone(QTextStream &out, QTextStream &out1) {
 }
 
 bool Dialog::setDomain(QTextStream &out, QTextStream &out1) {
-    QRegExp rx("^((([a-z0-9]+)([_a-z0-9]*)(((-?)[a-z0-9]+)*)([.])?)+)([a-z0-9]+)$");
+    QRegExp rx("^([A-Za-z0-9ßàÁâãóôþüúðæåïçèõöÿýòäœêëìíøùîûñé-]{1,})([.])?([A-Za-z0-9ßàÁâãóôþüúðæåïçèõöÿýòäœêëìíøùîûñé-]{1,})$");
+    QRegExp rx1("[.-]{2,}");
+    QRegExp rx2("^[.-]{1,}");
+    QRegExp rx3("[.-]{1,}$");
     QString dom = domain->text();
-    bool correct = true;
+    bool correct = false;
+    int dlen = dom.length();
 
-    if( dom != "" ) {
-        correct = dom.contains(rx);
+    if( dom != "" && dlen < 64 && dlen > 1 ) {
+        correct = dom.contains(rx)&&(!dom.contains(rx1))&&(!dom.contains(rx2))&&(!dom.contains(rx3));
+        //if( dlen >= 4 && dom[2] == '-' && dom[3] == '-' ) { correct = false; }
     }
     if (correct) {
         log->append("valid domain");
@@ -340,7 +376,7 @@ bool Dialog::setCreditCard(QTextStream &out, QTextStream &out1) {
     QRegExp rx("^([0-9]{4,4}([ ])[0-9]{4,4}([ ])[0-9]{4,4}([ ])[0-9]{4,4})$");
     QString card = credit_card->text();
 
-    bool correct = true;
+    bool correct = false;
 
     correct = card.contains(rx);
     correct = (card[0].isDigit() && card[0].digitValue() > 0);
@@ -389,7 +425,7 @@ bool Dialog::setIP(QTextStream &out, QTextStream &out1) {
     QRegExp rx("^([0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3})$");
     QString ipt = ip_address->text();
 
-    bool correct = true;
+    bool correct = false;
 
     correct = ipt.contains(rx);
     if (correct) {

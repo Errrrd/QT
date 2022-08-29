@@ -386,7 +386,7 @@ bool Dialog::setCreditCard(QTextStream &out, QTextStream &out1) {
     bool correct = false;
 
     correct = card.contains(rx);
-    correct = (card[0].isDigit() && card[0].digitValue() > 0);
+    correct = correct*(card[0].isDigit() && card[0].digitValue() > 0);
     if (correct) {
         int sum1, sum2;
 

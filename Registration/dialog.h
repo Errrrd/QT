@@ -42,29 +42,21 @@ private:
     QLabel *labelIP_address;
     QLineEdit *ip_address;
 
+    bool setUsername(QTextStream &out, QTextStream &out1);
+    bool setLogin(QTextStream &out, QTextStream &out1, QTextStream &fout2);
+    bool setPassword(QTextStream &out, QTextStream &out1);
+    bool setRpassword();
+    bool setE_mail(QTextStream &out, QTextStream &out1);
+    bool setPhone(QTextStream &out, QTextStream &out1);
+    bool setDomain(QTextStream &out, QTextStream &out1);
+    bool setCreditCard(QTextStream &out, QTextStream &out1);
+    bool setIP(QTextStream &out, QTextStream &out1);
+
 private slots:
     void setAccept();
 
 public:
     Dialog(QWidget *parent = nullptr);
     ~Dialog();
-
-    bool setUsername(QTextStream &out, QTextStream &out1);
-
-    bool setLogin(QTextStream &out, QTextStream &out1, QTextStream &fout2);
-
-    bool setPassword(QTextStream &out, QTextStream &out1);
-
-    bool setRpassword();
-
-    bool setE_mail(QTextStream &out, QTextStream &out1);
-
-    bool setPhone(QTextStream &out, QTextStream &out1);
-
-    bool setDomain(QTextStream &out, QTextStream &out1);
-
-    bool setCreditCard(QTextStream &out, QTextStream &out1);
-
-    bool setIP(QTextStream &out, QTextStream &out1);
 };
 #endif // DIALOG_H
